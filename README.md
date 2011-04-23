@@ -4,6 +4,8 @@
 
 ### publish-tx
 <pre>
+Note: Content-Type must be "application/x-www-form-urlencoded" or "application/json"
+
 POST /api/publish-tx.js
   tx64=...
 

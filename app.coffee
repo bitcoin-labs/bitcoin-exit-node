@@ -2,6 +2,11 @@
 url = require 'url'
 async = require 'async'
 {get_address_info} = require './scrape-blockexplorer'
+{BitcoinNode} = require './bitcoin-node'
+
+
+
+bitcoin_node = new BitcoinNode
 
 
 
@@ -23,5 +28,6 @@ module.exports = (app) ->
       }
 
   app.post '/api/publish-tx.js', api, (req, res, next) ->
-    throw new Error "TODO"
-
+    tx = new Buffer req.body.tx64, 'base64'
+    bitcoin_node.publishTX_via_tx tx, () ->
+      res.api {}
