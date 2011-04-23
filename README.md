@@ -13,7 +13,7 @@ POST /api/publish-tx.js
 
 ### get-address-info
 <pre>
-GET /api/get-address-info.js?addresses= (comma-separated base58 addresses)
+GET /api/check-addresses.js?addresses= (comma-separated base58 addresses)
 
 --> {
   "addresses": [
@@ -23,7 +23,8 @@ GET /api/get-address-info.js?addresses= (comma-separated base58 addresses)
         {
           hash: 
           n: 
-          value: 
+          block_number: 
+          value_str:
         },
         ...
       ]
