@@ -4,10 +4,12 @@ net = require 'net'
 {readData} = require './util'
 
 
+
 exports.BitcoinNode = class BitcoinNode
 
   publishTX_via_tx: (data, callback) ->
-    @conn.write msg pack_message 'tx', data
+    @conn.write pack_message 'tx', data
+    callback()
 
   publishTX_via_inv: (data, callback) ->
     k = inv_for_tx(data).toString('base64')
@@ -24,7 +26,7 @@ exports.BitcoinNode = class BitcoinNode
       console.log "Bitcoin message: #{name}"
 
     p.on 'version', (m) =>
-      if m >= 209
+      if m.version >= 209
         @conn.write pack_message 'verack', {}
 
     p.on 'getdata', (m) =>

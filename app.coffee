@@ -1,12 +1,15 @@
 
 url = require 'url'
 async = require 'async'
-{get_address_info} = require './scrape-blockexplorer'
+{get_unspent_outpoints} = require './scrape-blockexplorer'
 {BitcoinNode} = require './bitcoin-node'
 
 
+CONNECT_TO_BITCOIND = true
 
-bitcoin_node = new BitcoinNode
+
+if CONNECT_TO_BITCOIND
+  bitcoin_node = new BitcoinNode
 
 
 
@@ -20,14 +23,20 @@ api = (req, res, next) ->
 
 module.exports = (app) ->
 
-  app.get '/api/check-addresses.js', api, (req, res, next) ->
+  app.get '/api/unspent-outpoints.js', api, (req, res, next) ->
     addrs = req.x.addresses.split ','
-    async.map addrs, get_address_info, (err, results) ->
+    async.map addrs, get_unspent_outpoints, (err, results) ->
+      unspent_outpoints = []
+      for arr in results
+        for x in arr
+          unspent_outpoints.push x
       res.api {
-        addresses: results
+        unspent_outpoints: unspent_outpoints
       }
 
-  app.post '/api/publish-tx.js', api, (req, res, next) ->
-    tx = new Buffer req.body.tx64, 'base64'
-    bitcoin_node.publishTX_via_tx tx, () ->
-      res.api {}
+  if CONNECT_TO_BITCOIND
+    app.post '/api/publish-tx.js', api, (req, res, next) ->
+      tx = new Buffer req.body.tx64, 'base64'
+      console.log require('hexy').hexy tx
+      bitcoin_node.publishTX_via_tx tx, () ->
+        res.api {}
