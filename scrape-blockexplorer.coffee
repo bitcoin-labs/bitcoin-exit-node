@@ -9,14 +9,15 @@ exports.get_unspent_outpoints = (address, callback) ->
   
   http.get {host:"blockexplorer.com", port:80, path:"/address/#{address}"}, (res) ->
     readData res, (data) ->
-      [received, sent_transactions] = scrape_address_ledger data.toString 'utf-8'
+      html = data.toString 'utf-8'
+      [received, sent_transactions] = scrape_address_ledger html, address
       
       async.map sent_transactions, tx_input_outpoints, (err, results) ->
         
         # Set of received outpoints
         set = {}
         for row in received
-          set[row.outpoint] = row
+          set["#{row.hash}:#{row.n}"] = row
         
         # Setminus the spent ones
         for outpoints in results
@@ -46,7 +47,16 @@ tx_input_outpoints = (tx_hash, cb) ->
       cb null, outpoints
 
 
-scrape_address_ledger = (html) ->
+satoshis_from_decimal = (text) ->
+  if text.match /^[0-9]+$/
+    parseInt(text, 10) * 1e8
+  else
+    [left, right] = text.split '.'
+    assert.ok (right.length <= 8), "right.length > 8"
+    rightSatoshis = parseInt(right, 10) * Math.pow(10, 8 - right.length)
+    (left * 1e8) + rightSatoshis
+
+scrape_address_ledger = (html, address) ->
   
   received = []
   sent_transactions_set = {}
@@ -73,9 +83,9 @@ scrape_address_ledger = (html) ->
         received.push {
           hash: hash
           n: n
-          outpoint: "#{hash}:#{n}"
-          block_number: block_number
-          value_str: value_str
+          satoshis: satoshis_from_decimal(value_str)
+          amount: value_str
+          address: address
         }
       else
         sent_transactions_set[hash] = true

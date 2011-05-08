@@ -1,4 +1,7 @@
 
+process.on 'uncaughtException', (e) ->
+  console.log "*** Exception: #{e}"
+
 express = require 'express'
 
 app = express.createServer()
@@ -7,7 +10,7 @@ app.configure () ->
     app.use express.methodOverride()
     app.use express.bodyParser()
     app.use app.router
-#    app.use express.errorHandler()
+    app.use express.errorHandler()
 
 require('./app')(app)
 
