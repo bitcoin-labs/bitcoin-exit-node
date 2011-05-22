@@ -14,6 +14,7 @@ if CONNECT_TO_BITCOIND
 
 
 api = (req, res, next) ->
+  console.log "[REQ] #{req.url}"
   req.x = url.parse(req.url, true).query
   res.api = (y) ->
     res.writeHead 200, {'Content-Type': 'text/json'}
