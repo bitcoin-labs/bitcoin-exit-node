@@ -38,6 +38,5 @@ module.exports = (app) ->
   if CONNECT_TO_BITCOIND
     app.post '/api/publish-tx.js', api, (req, res, next) ->
       tx = new Buffer req.body.tx64, 'base64'
-      console.log require('hexy').hexy tx
       bitcoin_node.publishTX_via_tx tx, () ->
         res.api {}
